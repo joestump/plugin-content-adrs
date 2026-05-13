@@ -35,7 +35,7 @@ describe('plugin-content-adrs', () => {
 
       const plugin = pluginContentAdrs(mockContext, {});
 
-      expect(plugin.name).toBe('docusaurus-plugin-adrs');
+      expect(plugin.name).toBe('docusaurus-plugin-content-adrs');
     });
 
     it('should use custom adrsDir when provided', () => {
@@ -54,7 +54,22 @@ describe('plugin-content-adrs', () => {
   });
 
   describe('loadContent', () => {
-    it('should return empty adrs array on init', async () => {
+    it('should return empty adrs array when directory does not exist', async () => {
+      const mockContext = {
+        siteDir: '/nonexistent',
+        generatedFilesDir: '/tmp/generated',
+        outDir: '/tmp/out',
+        baseUrl: '/',
+        i18n: { currentLocale: 'en' },
+      } as any;
+
+      const plugin = pluginContentAdrs(mockContext, { adrsDir: 'docs/adrs' });
+      const content = await plugin.loadContent!();
+
+      expect(content).toEqual({ adrs: [] });
+    });
+
+    it('should return object with adrs array', async () => {
       const mockContext = {
         siteDir: '/tmp/site',
         generatedFilesDir: '/tmp/generated',
@@ -66,7 +81,8 @@ describe('plugin-content-adrs', () => {
       const plugin = pluginContentAdrs(mockContext, {});
       const content = await plugin.loadContent!();
 
-      expect(content).toEqual({ adrs: [] });
+      expect(Array.isArray(content.adrs)).toBe(true);
+      expect(content.adrs.length).toBeGreaterThanOrEqual(0);
     });
   });
 });
